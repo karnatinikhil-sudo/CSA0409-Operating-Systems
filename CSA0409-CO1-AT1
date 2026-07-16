@@ -1,21 +1,200 @@
+Q1: Shared Linux Server in a University Laboratory
+(a) Suitable Operating System
+Suitable OS: A Multi-user, multitasking operating system such as Linux is suitable for this environment.
+
+Justification:
+Multiple users can access the system simultaneously from different terminals or network sessions.
+Multitasking allows several programs to run concurrently, enabling many students to execute their programs at the same time.
+Resource sharing is efficient because the CPU, memory, storage, and other system resources are managed and allocated among users and processes.
+
+User isolation and security are maintained through permissions and process protection, preventing one student’s program from interfering with another’s work.
+
+(b) Responsibilities of the Kernel
+
+Any two responsibilities of the kernel in managing multiple user processes are:
+
+Process scheduling: The kernel decides which process gets CPU time and manages context switching among processes.
+
+Memory management: The kernel allocates and deallocates memory to processes and ensures that each process has protected memory space.
+
+Process creation and termination: It creates new processes, maintains process states, and removes processes after execution.
+
+Resource allocation: It manages access to files, devices, and other shared resources.
+
+(c) C-Based System Call Sequence
+
+The following C program uses fork() to create a child process and displays the Process IDs (PIDs) of both the parent and child.
+
 [c]
-#include<stdio.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <unistd.h>
 int main() {
     pid_t pid;
+
     pid = fork();
     if (pid < 0) {
-        printf("Process creation failed.\n");
+        printf("Fork failed\n");
     }
     else if (pid == 0) {
-        printf("Child Process\n");
-        printf("Child PID: %d\n", getpid());
-        printf("Parent PID: %d\n", getppid());
+        printf("Child Process ID: %d\n", getpid());
+        printf("Parent of Child ID: %d\n", getppid());
     }
     else {
-        printf("Parent Process\n");
-        printf("Parent PID: %d\n", getpid());
-        printf("Child PID: %d\n", pid);
+        printf("Parent Process ID: %d\n", getpid());
+        printf("Created Child ID: %d\n", pid);
     }
     return 0;
 }
+
+
+
+Q2: File Management System Calls
+(a) System Calls Required for File Operations
+Operation	System Call	Purpose
+File Creation	open() (with O_CREAT)	Creates a new file if it does not exist.
+File Writing	write()	Writes data into the file.
+File Reading	read()	Reads data from the file.
+File Closing	close()	Closes the file and releases system resources.
+
+(b) Two File Management System Calls
+1. open()
+Opens an existing file or creates a new file.
+Returns a file descriptor, which is used for subsequent file operations such as reading and writing.
+2. write()
+Writes data from the program to the specified file.
+Returns the number of bytes successfully written to the file.
+
+(c) C-Based System Call Sequence (Pseudo-Code)
+Start
+fd = open("student.txt", O_CREAT | O_WRONLY, 0644);
+write(fd, "Rahul", 5);
+close(fd);
+Stop
+
+Functions Used :
+open() – Creates or opens the file.
+write() – Writes the student name into the file.
+close() – Closes the file after writing.
+
+Expected Output :
+File "student.txt" is created.
+Student name "Rahul" is written successfully.
+File closed successfully.
+
+
+
+Q3: File Copy Using System Calls
+(a)System Calls Required to Copy a File
+Operation	System Call	Purpose
+Open Source File	open()	Opens the source file for reading.
+Open Destination File	open()	Creates or opens the destination file for writing.
+Read Data	read()	Reads data from the source file.
+Write Data	write()	Writes data into the destination file.
+Close Files	close()	Closes both files after copying is complete.
+
+(b) Explain Any Two System Calls
+1. read()
+Reads data from the source file into a buffer.
+Returns the number of bytes read from the file.
+2. write()
+Writes the data stored in the buffer to the destination file.
+Returns the number of bytes successfully written.
+
+(c) C-Based System Call Sequence (Pseudo-Code)
+Start
+Open source file using open()
+Open destination file using open()
+While read(source, buffer) > 0
+    write(destination, buffer)
+End While
+Close source file
+Close destination file
+Stop
+
+Functions Used
+open() – Opens or creates a file.
+read() – Reads data from the source file.
+write() – Writes data to the destination file.
+close() – Closes the opened files.
+
+Expected Output
+Source file opened successfully.
+Destination file created successfully.
+File copied successfully.
+Both files closed.
+
+
+
+Q4: Process Creation and Program Execution 
+(a) Purpose of fork() and exec() System Calls
+fork()
+Creates a new child process by duplicating the parent process.
+Returns 0 in the child process and the child's Process ID (PID) in the parent process.
+exec()
+Replaces the current process with a new program.
+Loads and executes the specified program without creating a new process.
+
+(b) Role of wait() System Call
+The wait() system call causes the parent process to wait until the child process finishes execution.
+It prevents the creation of zombie processes and ensures proper synchronization between the parent and child processes.
+
+(c) System Call Sequence Using fork(), exec(), and wait()
+Start
+pid = fork()
+If pid == 0
+    exec("new_program")
+Else
+    wait()
+    Print "Child process completed"
+End If
+Stop
+
+Functions Used:
+fork() – Creates a child process.
+exec() – Executes a new program in the child process.
+wait() – Makes the parent process wait until the child process finishes.
+
+Expected Output:
+Child process created.
+New program executed by child process.
+Parent waiting for child process.
+Child process completed.
+Parent process resumed.
+
+
+Q5: File Management in Operating System
+(a) Importance of File Management in an Operating System
+File management is an important function of an operating system because it organizes, stores, and manages files efficiently. It allows users to create, access, modify, and delete files while ensuring data security and proper resource utilization. It also controls file permissions, manages storage space, and provides reliable access to data stored on secondary memory.
+
+(b) Purpose of open() and close() System Calls
+open()
+Opens an existing file or creates a new file.
+Returns a file descriptor that is used for performing file operations such as reading and writing.
+close()
+Closes the opened file after the required operations are completed.
+Releases the file descriptor and frees the system resources associated with the file.
+
+(c) C-Based System Call Sequence (Pseudo-Code)
+Start
+Declare file descriptor fd
+Declare buffer
+fd = open("student.txt", O_RDONLY)
+If fd < 0
+    Print "File cannot be opened"
+    Stop
+End If
+read(fd, buffer)
+Print buffer
+close(fd)
+Stop
+
+Functions Used:
+open() – Opens the file for reading.
+read() – Reads the contents of the file into a buffer.
+close() – Closes the file and releases system resources.
+
+Expected Output:
+File opened successfully.
+Reading file contents...
+Rahul
+File closed successfully.
