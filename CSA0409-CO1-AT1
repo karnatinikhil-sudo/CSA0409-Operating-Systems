@@ -21,31 +21,33 @@ Process creation and termination: It creates new processes, maintains process st
 
 Resource allocation: It manages access to files, devices, and other shared resources.
 
-(c) C-Based System Call Sequence
+(c) C-Based System Call Sequence (Pseudo-Code)
+Start
+pid = fork()
+If pid == 0
+    Print "Child Process"
+    Print "Child PID =", getpid()
+    Print "Parent PID =", getppid()
+Else
+    Print "Parent Process"
+    Print "Parent PID =", getpid()
+    Print "Child PID =", pid
+End If
+Stop
 
-The following C program uses fork() to create a child process and displays the Process IDs (PIDs) of both the parent and child.
+Functions Used:
+fork() – Creates a new child process.
+getpid() – Returns the Process ID (PID) of the current process.
+getppid() – Returns the Parent Process ID (PPID).
+printf() – Displays the Process IDs on the screen.
+Expected Output:
+Parent Process
+Parent PID = 1234
+Child PID = 1235
 
-[c]
-#include <stdio.h>
-#include <unistd.h>
-int main() {
-    pid_t pid;
-
-    pid = fork();
-    if (pid < 0) {
-        printf("Fork failed\n");
-    }
-    else if (pid == 0) {
-        printf("Child Process ID: %d\n", getpid());
-        printf("Parent of Child ID: %d\n", getppid());
-    }
-    else {
-        printf("Parent Process ID: %d\n", getpid());
-        printf("Created Child ID: %d\n", pid);
-    }
-    return 0;
-}
-
+Child Process
+Child PID = 1235
+Parent PID = 1234
 
 
 Q2: File Management System Calls
