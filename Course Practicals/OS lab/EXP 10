@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+
+struct message
+{
+    long type;
+    char text[100];
+};
+
+int main()
+{
+    struct message msg;
+
+    int id=msgget(1234,0666|IPC_CREAT);
+
+    msg.type=1;
+
+    strcpy(msg.text,"Hello Message Queue");
+
+    msgsnd(id,&msg,sizeof(msg.text),0);
+
+    msgrcv(id,&msg,sizeof(msg.text),1,0);
+
+    printf("%s\n",msg.text);
+
+    return 0;
+}
