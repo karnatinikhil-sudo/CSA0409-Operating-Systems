@@ -1,0 +1,56 @@
+#include <stdio.h>
+
+int main()
+{
+    int bt[20],rem[20],n,i,time=0,quantum,done;
+    int wt[20],tat[20];
+
+    printf("Enter number of processes: ");
+    scanf("%d",&n);
+
+    for(i=0;i<n;i++)
+    {
+        printf("Burst Time P%d: ",i+1);
+        scanf("%d",&bt[i]);
+        rem[i]=bt[i];
+    }
+
+    printf("Enter Time Quantum: ");
+    scanf("%d",&quantum);
+
+    do
+    {
+        done=1;
+
+        for(i=0;i<n;i++)
+        {
+            if(rem[i]>0)
+            {
+                done=0;
+
+                if(rem[i]>quantum)
+                {
+                    time+=quantum;
+                    rem[i]-=quantum;
+                }
+                else
+                {
+                    time+=rem[i];
+                    wt[i]=time-bt[i];
+                    rem[i]=0;
+                }
+            }
+        }
+
+    }while(!done);
+
+    printf("\nProcess\tWT\tTAT\n");
+
+    for(i=0;i<n;i++)
+    {
+        tat[i]=wt[i]+bt[i];
+        printf("P%d\t%d\t%d\n",i+1,wt[i],tat[i]);
+    }
+
+    return 0;
+}
