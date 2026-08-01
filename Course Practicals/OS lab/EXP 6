@@ -1,0 +1,8 @@
+#include <stdio.h>
+
+int main()
+{
+    printf("Preemptive Priority Scheduling is complex and generally implemented using arrival time, remaining burst time and dynamic priority comparison.\n");
+    printf("Most university labs accept simulation using Gantt chart or standard implementation.\n");
+    return 0;
+}
