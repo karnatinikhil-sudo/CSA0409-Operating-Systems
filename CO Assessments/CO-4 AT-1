@@ -1,0 +1,204 @@
+Q1. File Allocation Methods (Contiguous / Linked / Indexed)
+c
+#include <stdio.h>
+int r(char*p){int v;printf("%s",p);while(scanf("%d",&v)!=1)while(getchar()!='\n');return v;}
+int main(){
+ int d[1000],n=r("Disk size: "),k=r("Blocks needed: "),m;printf("1-Contig 2-Linked 3-Indexed: ");m=r("");
+ for(int i=0;i<n;i++)d[i]=0;
+ if(k<=0||k>n){puts("Insufficient space.");return 0;}
+ if(m==1){int s=-1,c=0;for(int i=0;i<n;i++){if(!d[i]){if(!c)s=i;if(++c==k)break;}else c=0;}
+  c<k?puts("Failed."):printf("Allocated %d-%d\n",s,s+k-1);}
+ else if(m==2||m==3){int a[1000],c=0,st=(m==3);
+  for(int i=st;i<n&&c<k;i++)if(!d[i])a[c++]=i;
+  if(c<k){puts("Failed.");return 0;}
+  if(m==3)printf("Index 0 -> ");else printf("Chain: ");
+  for(int i=0;i<c;i++)printf("%d ",a[i]);puts("");}
+ else puts("Invalid.");
+}
+
+Input:
+50
+10
+1
+
+Output:
+Disk size: Blocks needed: 1-Contig 2-Linked 3-Indexed: Allocated 0-9
+
+
+Q2. Free Space Management using Bitmap
+c
+#include <stdio.h>
+int r(char*p){int v;printf("%s",p);while(scanf("%d",&v)!=1)while(getchar()!='\n');return v;}
+int main(){
+ int b[1000],n=r("Disk size: "),ch;for(int i=0;i<n;i++)b[i]=0;
+ do{printf("1-Alloc 2-Free 3-Show 4-Exit: ");ch=r("");
+  if(ch==1){int k=r("Blocks needed: "),f[1000],c=0;
+   for(int i=0;i<n&&c<k;i++)if(!b[i])f[c++]=i;
+   if(c<k)printf("Only %d free.\n",c);
+   else{for(int i=0;i<c;i++)b[f[i]]=1;printf("Allocated: ");for(int i=0;i<c;i++)printf("%d ",f[i]);puts("");}}
+  else if(ch==2){int x=r("Block to free: ");
+   if(x<0||x>=n)puts("Invalid.");else{b[x]=0;printf("Freed %d.\n",x);}}
+  else if(ch==3){int f=0;for(int i=0;i<n;i++){printf("%d",b[i]);if(!b[i])f++;}printf("\nFree: %d/%d\n",f,n);}
+ }while(ch!=4);
+}
+
+Input:
+20
+1
+5
+3
+2
+3
+4
+
+Output:
+Disk size: 1-Alloc 2-Free 3-Show 4-Exit: Blocks needed: Allocated: 0 1 2 3 4
+1-Alloc 2-Free 3-Show 4-Exit: 11111000000000000000
+Free: 15/20
+1-Alloc 2-Free 3-Show 4-Exit: Block to free: Freed 3.
+1-Alloc 2-Free 3-Show 4-Exit:
+
+
+Q3. Disk Scheduling: FCFS, SSTF, SCAN
+c
+#include <stdio.h>
+#include <string.h>
+int r(char*p){int v;printf("%s",p);while(scanf("%d",&v)!=1)while(getchar()!='\n');return v;}
+int ad(int a,int b){return a>b?a-b:b-a;}
+void srt(int r[],int n){for(int i=0;i<n-1;i++)for(int j=i+1;j<n;j++)if(r[i]>r[j]){int t=r[i];r[i]=r[j];r[j]=t;}}
+int fcfs(int q[],int n,int h){int t=0,c=h;printf("FCFS: %d",h);
+ for(int i=0;i<n;i++){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}printf("\nSeek=%d\n",t);return t;}
+int sstf(int q[],int n,int h){int v[100]={0},t=0,c=h;printf("SSTF: %d",h);
+ for(int k=0;k<n;k++){int b=-1,bd=1<<30;for(int i=0;i<n;i++)if(!v[i]&&ad(c,q[i])<bd){bd=ad(c,q[i]);b=i;}
+  v[b]=1;t+=bd;c=q[b];printf("->%d",c);}printf("\nSeek=%d\n",t);return t;}
+int scn(int q0[],int n,int h,int sz,int dir){int q[100];memcpy(q,q0,n*4);srt(q,n);int t=0,c=h;printf("SCAN: %d",h);
+ if(dir){for(int i=0;i<n;i++)if(q[i]>=h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}
+  if(c!=sz-1){t+=ad(c,sz-1);c=sz-1;printf("->%d",c);}
+  for(int i=n-1;i>=0;i--)if(q[i]<h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}}
+ else{for(int i=n-1;i>=0;i--)if(q[i]<=h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}
+  if(c){t+=ad(c,0);c=0;printf("->0");}
+  for(int i=0;i<n;i++)if(q[i]>h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}}
+ printf("\nSeek=%d\n",t);return t;}
+int main(){
+ int q[100],n=r("Num requests: "),h,sz,dir;
+ for(int i=0;i<n;i++){char b[20];sprintf(b,"Req[%d]: ",i);q[i]=r(b);}
+ h=r("Head: ");sz=r("Disk size: ");dir=r("Dir(1up/0down): ");
+ int f=fcfs(q,n,h),s=sstf(q,n,h),c=scn(q,n,h,sz,dir);
+ printf("FCFS=%d SSTF=%d SCAN=%d\n",f,s,c);
+ int b=f;char*nm="FCFS";if(s<b){b=s;nm="SSTF";}if(c<b){b=c;nm="SCAN";}
+ printf("Best: %s (%d)\n",nm,b);
+}
+
+Input:
+7
+82
+170
+43
+140
+24
+16
+190
+50
+200
+1
+
+Output:
+FCFS: 50->82->170->43->140->24->16->190
+Seek=642
+SSTF: 50->43->24->16->82->140->170->190
+Seek=208
+SCAN: 50->82->140->170->190->199->43->24->16
+Seek=332
+FCFS=642 SSTF=208 SCAN=332
+Best: SSTF (208)
+Q4. Disk Scheduling: C-SCAN, LOOK
+c
+#include <stdio.h>
+#include <string.h>
+int r(char*p){int v;printf("%s",p);while(scanf("%d",&v)!=1)while(getchar()!='\n');return v;}
+int ad(int a,int b){return a>b?a-b:b-a;}
+void srt(int r[],int n){for(int i=0;i<n-1;i++)for(int j=i+1;j<n;j++)if(r[i]>r[j]){int t=r[i];r[i]=r[j];r[j]=t;}}
+int csc(int q0[],int n,int h,int sz){int q[100];memcpy(q,q0,n*4);srt(q,n);int t=0,c=h;printf("C-SCAN: %d",h);
+ for(int i=0;i<n;i++)if(q[i]>=h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}
+ if(c!=sz-1){t+=ad(c,sz-1);c=sz-1;printf("->%d",c);}
+ c=0;printf("->0");
+ for(int i=0;i<n;i++)if(q[i]<h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}
+ printf("\nMove=%d\n",t);return t;}
+int lok(int q0[],int n,int h,int dir){int q[100];memcpy(q,q0,n*4);srt(q,n);int t=0,c=h;printf("LOOK: %d",h);
+ if(dir){for(int i=0;i<n;i++)if(q[i]>=h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}
+  for(int i=n-1;i>=0;i--)if(q[i]<h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}}
+ else{for(int i=n-1;i>=0;i--)if(q[i]<=h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}
+  for(int i=0;i<n;i++)if(q[i]>h){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}}
+ printf("\nMove=%d\n",t);return t;}
+int main(){
+ int q[100],n=r("Num requests: "),h,sz,dir;
+ for(int i=0;i<n;i++){char b[20];sprintf(b,"Req[%d]: ",i);q[i]=r(b);}
+ h=r("Head: ");sz=r("Disk size: ");dir=r("Dir(1up/0down): ");
+ int c=csc(q,n,h,sz),l=lok(q,n,h,dir);
+ printf("C-SCAN=%d LOOK=%d\n%s better.\n",c,l,l<c?"LOOK":c<l?"C-SCAN":"Both equal");
+}
+
+Input:
+7
+82
+170
+43
+140
+24
+16
+190
+50
+200
+1
+
+Output:
+C-SCAN: 50->82->140->170->190->199->0->16->24->43
+Move=192
+LOOK: 50->82->140->170->190->43->24->16
+Move=314
+C-SCAN=192 LOOK=314
+C-SCAN better.
+
+
+Q5. Integrated Disk Allocation + Scheduling
+c
+#include <stdio.h>
+int r(char*p){int v;printf("%s",p);while(scanf("%d",&v)!=1)while(getchar()!='\n');return v;}
+int ad(int a,int b){return a>b?a-b:b-a;}
+int fcfs(int q[],int n,int h){int t=0,c=h;printf("FCFS: %d",h);
+ for(int i=0;i<n;i++){t+=ad(c,q[i]);c=q[i];printf("->%d",c);}printf("\nSeek=%d\n",t);return t;}
+int sstf(int q[],int n,int h){int v[100]={0},t=0,c=h;printf("SSTF: %d",h);
+ for(int k=0;k<n;k++){int b=-1,bd=1<<30;for(int i=0;i<n;i++)if(!v[i]&&ad(c,q[i])<bd){bd=ad(c,q[i]);b=i;}
+  v[b]=1;t+=bd;c=q[b];printf("->%d",c);}printf("\nSeek=%d\n",t);return t;}
+int main(){
+ int n=r("Disk size: "),fs=r("File size: "),am;printf("1-Contig 2-Linked 3-Indexed: ");am=r("");
+ if(fs<=0||fs>n){puts("Allocation failed.");return 0;}
+ printf("%s alloc ok (0-%d)\n",am==1?"Contig":am==2?"Linked":"Indexed",fs-1);
+ int q[100],c=r("Num requests: "),h,sm;
+ for(int i=0;i<c;i++){char b[20];sprintf(b,"Req[%d]: ",i);q[i]=r(b);}
+ h=r("Head: ");printf("1-FCFS 2-SSTF: ");sm=r("");
+ int t=sm==1?fcfs(q,c,h):sstf(q,c,h);
+ printf("Alloc=%s Sched=%s TotalSeek=%d\n",am==1?"Contig":am==2?"Linked":"Indexed",sm==1?"FCFS":"SSTF",t);
+}
+
+Input:
+50
+10
+1
+7
+82
+170
+43
+140
+24
+16
+190
+50
+1
+
+Output:
+
+Contig alloc ok (0-9)
+FCFS: 50->82->170->43->140->24->16->190
+Seek=642
+Alloc=Contig Sched=FCFS TotalSeek=642
