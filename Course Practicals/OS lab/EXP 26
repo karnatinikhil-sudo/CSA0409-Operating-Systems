@@ -1,0 +1,73 @@
+26. File Management Operations
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main()
+{
+    FILE *fp;
+    char filename[50];
+    char data[200];
+
+
+    printf("Enter file name: ");
+    scanf("%s", filename);
+
+
+    fp = fopen(filename, "w");
+
+
+    if(fp == NULL)
+    {
+        printf("File cannot be created\n");
+        return 1;
+    }
+
+
+    printf("Enter data: ");
+    getchar();
+    fgets(data, sizeof(data), stdin);
+
+
+    fputs(data, fp);
+    fclose(fp);
+
+
+    printf("File created and data written successfully\n");
+
+
+    fp = fopen(filename, "r");
+
+
+    if(fp == NULL)
+    {
+        printf("File cannot be opened\n");
+        return 1;
+    }
+
+
+    printf("\nFile contents:\n");
+
+
+    while(fgets(data, sizeof(data), fp) != NULL)
+    {
+        printf("%s", data);
+    }
+
+
+    fclose(fp);
+
+
+    printf("\n\nFile closed successfully\n");
+
+
+    if(remove(filename) == 0)
+        printf("File deleted successfully\n");
+    else
+        printf("File deletion failed\n");
+
+
+    return 0;
+}
