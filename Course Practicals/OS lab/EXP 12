@@ -1,0 +1,63 @@
+12 Design a C program to simulate the concept of Dining-Philosophers problem
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define N 5
+
+sem_t fork[N];
+
+void *philosopher(void *arg)
+{
+    int id = *(int *)arg;
+
+    printf("Philosopher %d is thinking\n", id + 1);
+    sleep(1);
+
+    sem_wait(&fork[id]);
+
+    printf("Philosopher %d picked left fork\n", id + 1);
+
+    sem_wait(&fork[(id + 1) % N]);
+
+    printf("Philosopher %d picked right fork\n", id + 1);
+
+    printf("Philosopher %d is eating\n", id + 1);
+    sleep(2);
+
+    sem_post(&fork[(id + 1) % N]);
+
+    printf("Philosopher %d put down right fork\n", id + 1);
+
+    sem_post(&fork[id]);
+
+    printf("Philosopher %d put down left fork\n", id + 1);
+
+    printf("Philosopher %d finished eating\n", id + 1);
+
+    return NULL;
+}
+
+int main()
+{
+    pthread_t philosophers[N];
+    int id[N];
+
+    for (int i = 0; i < N; i++)
+        sem_init(&fork[i], 0, 1);
+
+    for (int i = 0; i < N; i++)
+    {
+        id[i] = i;
+        pthread_create(&philosophers[i], NULL, philosopher, &id[i]);
+    }
+
+    for (int i = 0; i < N; i++)
+        pthread_join(philosophers[i], NULL);
+
+    for (int i = 0; i < N; i++)
+        sem_destroy(&fork[i]);
+
+    return 0;
+}
