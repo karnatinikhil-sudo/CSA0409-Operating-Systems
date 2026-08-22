@@ -1,0 +1,140 @@
+14 Construct a C program to organise the file using a single level directory.
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 20
+
+int main()
+{
+    char files[MAX][30];
+    int n = 0;
+    int choice;
+    char name[30];
+
+    while (1)
+    {
+        printf("\n\n===== SINGLE LEVEL DIRECTORY =====");
+        printf("\n1. Create File");
+        printf("\n2. Delete File");
+        printf("\n3. Search File");
+        printf("\n4. Display Files");
+        printf("\n5. Exit");
+
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1)
+        {
+            if (n == MAX)
+            {
+                printf("Directory is full");
+            }
+            else
+            {
+                printf("Enter file name: ");
+                scanf("%s", name);
+
+                int found = 0;
+
+                for (int i = 0; i < n; i++)
+                {
+                    if (strcmp(files[i], name) == 0)
+                    {
+                        found = 1;
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    printf("File already exists");
+                }
+                else
+                {
+                    strcpy(files[n], name);
+                    n++;
+                    printf("File created successfully");
+                }
+            }
+        }
+
+        else if (choice == 2)
+        {
+            printf("Enter file name to delete: ");
+            scanf("%s", name);
+
+            int found = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                if (strcmp(files[i], name) == 0)
+                {
+                    for (int j = i; j < n - 1; j++)
+                    {
+                        strcpy(files[j], files[j + 1]);
+                    }
+
+                    n--;
+                    found = 1;
+                    printf("File deleted successfully");
+                    break;
+                }
+            }
+
+            if (!found)
+                printf("File not found");
+        }
+
+        else if (choice == 3)
+        {
+            printf("Enter file name to search: ");
+            scanf("%s", name);
+
+            int found = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                if (strcmp(files[i], name) == 0)
+                {
+                    found = 1;
+                    break;
+                }
+            }
+
+            if (found)
+                printf("File found");
+            else
+                printf("File not found");
+        }
+
+        else if (choice == 4)
+        {
+            printf("\nFiles in Directory:\n");
+
+            if (n == 0)
+            {
+                printf("Directory is empty");
+            }
+            else
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    printf("%d. %s\n", i + 1, files[i]);
+                }
+            }
+        }
+
+        else if (choice == 5)
+        {
+            printf("Program terminated");
+            break;
+        }
+
+        else
+        {
+            printf("Invalid choice");
+        }
+    }
+
+    return 0;
+}
