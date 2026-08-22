@@ -1,0 +1,85 @@
+16. Random Access File for Employee Details
+#include <stdio.h>
+
+struct Employee
+{
+    int id;
+    char name[30];
+    float salary;
+};
+
+int main()
+{
+    struct Employee emp;
+    FILE *fp;
+    int choice, id;
+
+    fp = fopen("employee.dat", "w+b");
+
+    if (fp == NULL)
+    {
+        printf("File cannot be opened");
+        return 1;
+    }
+
+    while (1)
+    {
+        printf("\n===== EMPLOYEE FILE =====");
+        printf("\n1. Add Employee");
+        printf("\n2. Display Employee");
+        printf("\n3. Exit");
+
+        printf("\nEnter choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1)
+        {
+            printf("Enter Employee ID: ");
+            scanf("%d", &emp.id);
+
+            printf("Enter Employee Name: ");
+            scanf("%s", emp.name);
+
+            printf("Enter Salary: ");
+            scanf("%f", &emp.salary);
+
+            fseek(fp, (emp.id - 1) * sizeof(emp), SEEK_SET);
+
+            fwrite(&emp, sizeof(emp), 1, fp);
+
+            printf("Employee stored successfully");
+        }
+
+        else if (choice == 2)
+        {
+            printf("Enter Employee ID: ");
+            scanf("%d", &id);
+
+            fseek(fp, (id - 1) * sizeof(emp), SEEK_SET);
+
+            if (fread(&emp, sizeof(emp), 1, fp) == 1)
+            {
+                printf("\nEmployee ID: %d", emp.id);
+                printf("\nEmployee Name: %s", emp.name);
+                printf("\nSalary: %.2f", emp.salary);
+            }
+            else
+            {
+                printf("Employee not found");
+            }
+        }
+
+        else if (choice == 3)
+        {
+            fclose(fp);
+            break;
+        }
+
+        else
+        {
+            printf("Invalid choice");
+        }
+    }
+
+    return 0;
+}
