@@ -1,0 +1,322 @@
+CONSTRAINT BASED PROBLEM SOLVING
+
+Q1. OPTIMIZED LINUX FILE SYSTEM LAYOUT FOR A 50 GB SERVER
+
+Problem Analysis: The server has 50 GB storage and must manage system
+logs, user files and application data. The logs must not exceed 10 GB
+and critical services must continue without interruption.
+
+Proposed Partition Layout: 1. /boot - 1 GB - Boot files and kernel 2.
+swap - 4 GB - Virtual memory 3. / - 12 GB - Operating system and system
+utilities 4. /var - 12 GB - Logs, cache and variable data 5. /home - 10
+GB - User files 6. /opt - 6 GB - Application software/data 7.
+Unallocated - 5 GB - Emergency expansion
+
+Total = 50 GB
+
+Log Management: The /var partition should contain /var/log. logrotate
+can be used to rotate, compress and remove old logs.
+
+Example: sudo nano /etc/logrotate.d/serverlogs
+
+Example configuration:
+
+/var/log/*.log { daily rotate 7 compress missingok notifempty }
+
+Check log usage: du -sh /var/log
+
+Check disk usage: df -h
+
+Monitoring script:
+
+#!/bin/bash
+
+USAGE=$(df /var | awk ‘NR==2 {print $5}’ | tr -d ‘%’)
+
+if [ “$USAGE” -ge 85 ]; then echo “Warning: /var usage is above 85%” fi
+
+Advantages: 1. Separate /var prevents logs from filling the root
+filesystem. 2. /home is isolated from system files. 3. /opt protects
+application storage. 4. Log rotation prevents uncontrolled log growth.
+5. Unallocated space provides emergency capacity. 6. df and du allow
+continuous monitoring. 7. Critical services are less likely to stop
+because of disk exhaustion.
+
+Conclusion: The proposed layout provides controlled storage allocation,
+log management, monitoring and emergency capacity. Separating /var,
+/home and /opt improves system stability, while logrotate keeps log
+files within the 10 GB constraint.
+
+
+Q2. KERNEL-LEVEL OPTIMIZATION FOR A HIGH-CPU LINUX SYSTEM
+
+Problem Analysis: The Linux system has high CPU workload and frequent
+context switching. Hardware upgrades are not possible, so kernel
+scheduling and process management must be optimized.
+
+1.  Analyze CPU usage:
+
+top
+
+ps -eo pid,ppid,comm,%cpu –sort=-%cpu
+
+vmstat 1
+
+mpstat -P ALL 1
+
+2.  Process Priority: Use nice and renice to control process scheduling
+    priority.
+
+sudo renice -10 -p PID
+
+nice -n -10 ./application
+
+3.  Real-Time Scheduling: For real-time processing:
+
+sudo chrt -f 80 ./realtime_app
+
+4.  CPU Affinity: Assign a process to a specific CPU:
+
+taskset -c 2 ./application
+
+For an existing process:
+
+taskset -cp 2 PID
+
+5.  Kernel Parameters:
+
+sysctl -a
+
+sudo sysctl -w parameter=value
+
+Persistent parameters can be stored in /etc/sysctl.conf.
+
+6.  Kernel Modules:
+
+lsmod
+
+sudo modprobe -r module_name
+
+sudo modprobe module_name
+
+7.  Reduce Context Switching:
+
+-   Improve CPU affinity.
+-   Avoid unnecessary threads.
+-   Use suitable scheduling policies.
+-   Reduce excessive process creation.
+-   Assign appropriate priorities.
+
+Optimization Flow: Monitor CPU usage -> Identify high CPU processes ->
+Measure context switching -> Tune process priority -> Set CPU affinity
+-> Use real-time scheduling where required -> Remove unnecessary modules
+-> Monitor again
+
+Conclusion: Kernel scheduler tuning, process priority, CPU affinity,
+real-time scheduling and suitable kernel-module management can reduce
+scheduling overhead and improve real-time response without requiring
+hardware upgrades.
+
+
+
+Q3. PROCESSING 1 MILLION LOG ENTRIES WITHIN 2 MINUTES USING SHELL
+SCRIPTING
+
+Problem Analysis: The administrator must process 1 million log entries
+per day using only shell scripting and complete the task within 2
+minutes.
+
+The main requirement is to minimize process creation and unnecessary
+disk I/O.
+
+Efficient Approach: Use awk to process the complete file in a single
+pass instead of launching commands for every line.
+
+Example:
+
+awk ‘{count[$3]++} END {for (x in count) print x, count[x]}’ access.log
+
+Count error entries:
+
+awk ‘$4 == “ERROR” {count++} END {print “Errors:”, count}’ access.log
+
+Count HTTP status codes:
+
+awk ‘{count[$9]++} END {for (x in count) print x, count[x]}’ access.log
+
+Search for errors:
+
+grep -F “ERROR” access.log
+
+Count errors:
+
+grep -Fc “ERROR” access.log
+
+Sort reduced results:
+
+awk ‘{count[$3]++} END {for (x in count) print count[x],x}’ access.log |
+sort -nr
+
+Efficient shell script:
+
+#!/bin/bash
+
+LOGFILE=“access.log”
+
+echo “Total Entries:” wc -l < “$LOGFILE”
+
+echo “Error Entries:” grep -Fc “ERROR” “$LOGFILE”
+
+echo “Status Code Summary:” awk ’{count[$9]++} END {
+    for (code in count)
+        print code, count[code]
+}' "$LOGFILE”
+
+Measure execution time:
+
+time ./logprocess.sh
+
+Why These Commands Are Suitable: 1. awk processes records sequentially
+and supports filtering and counting. 2. grep is optimized for text
+searching. 3. wc efficiently counts lines. 4. sort should be used only
+after reducing the data. 5. Avoid a shell loop that starts a separate
+command for every log entry.
+
+Conclusion: Using awk, grep, wc and selective sort minimizes process
+creation and unnecessary I/O. A single-pass approach provides the best
+chance of meeting the 2-minute constraint. Actual execution time should
+be verified using the time command because it depends on hardware,
+storage and log complexity.
+
+
+
+Q4. MANAGING A FAULTY PROCESS CONSUMING 90% CPU WITHOUT RESTARTING THE
+SYSTEM
+
+Problem Analysis: A background process is consuming 90% CPU. The system
+must continue operating without rebooting and critical services must
+remain unaffected.
+
+1.  Identify the process:
+
+top
+
+ps -eo pid,ppid,comm,%cpu,%mem –sort=-%cpu
+
+2.  Monitor the process:
+
+top -p PID
+
+ps -p PID -o pid,ppid,stat,ni,%cpu,%mem,cmd
+
+3.  Lower its priority:
+
+sudo renice 10 -p PID
+
+4.  Temporarily stop the process:
+
+kill -STOP PID
+
+Resume it:
+
+kill -CONT PID
+
+5.  Terminate the faulty process:
+
+kill PID
+
+If it does not respond:
+
+kill -9 PID
+
+SIGKILL should be used only as a last resort.
+
+6.  If it is a systemd service:
+
+systemctl status service_name
+
+sudo systemctl restart service_name
+
+This restarts only the affected service and does not require a system
+reboot.
+
+7.  Verify the process before taking action:
+
+ps -fp PID
+
+8.  Monitor after the action:
+
+top
+
+uptime
+
+Recommended Strategy: Identify high-CPU PID -> Verify process and parent
+-> Check whether it is critical -> Lower priority using renice ->
+Monitor CPU usage -> STOP if necessary -> Investigate -> CONT or
+terminate -> Verify critical services
+
+Conclusion: Tools such as top, ps, renice, kill and systemctl allow
+administrators to identify, control and recover from a faulty high-CPU
+process without restarting the entire system.
+
+
+
+Q5. RESOURCE ALLOCATION FOR 5 VIRTUAL MACHINES WITH 16 GB RAM
+
+Problem Analysis: The physical server has 16 GB RAM. It must host 5 VMs,
+each requiring a minimum of 2 GB, while the host operating system
+requires 4 GB.
+
+RAM available for VMs:
+
+16 GB - 4 GB = 12 GB
+
+Minimum RAM required by VMs:
+
+5 x 2 GB = 10 GB
+
+Remaining RAM:
+
+12 GB - 10 GB = 2 GB
+
+Equal Allocation: Host OS = 4 GB VM1 = 2.4 GB VM2 = 2.4 GB VM3 = 2.4 GB
+VM4 = 2.4 GB VM5 = 2.4 GB
+
+Total:
+
+4 + (5 x 2.4) = 16 GB
+
+Every VM receives more than the required 2 GB minimum.
+
+Dynamic Allocation: If workloads differ, virtualization technologies can
+dynamically allocate memory according to demand. Each VM should have a
+minimum of 2 GB and the host should retain 4 GB.
+
+Important virtualization concepts:
+
+1.  Memory Overcommit: Virtual memory can be allocated according to
+    expected workload, but excessive overcommit should be avoided
+    because it may cause swapping.
+
+2.  Memory Ballooning: The hypervisor can reclaim unused memory from one
+    VM and provide it to another VM that requires additional memory.
+
+3.  Resource Priorities: High-priority VMs can receive additional
+    resources when required.
+
+4.  Monitoring: Host memory can be monitored using:
+
+free -h
+
+top
+
+Recommended Allocation:
+
+Physical RAM = 16 GB Host OS = 4 GB VM1 = 2.4 GB VM2 = 2.4 GB VM3 = 2.4
+GB VM4 = 2.4 GB VM5 = 2.4 GB
+
+Conclusion: The 16 GB RAM constraint can support all 5 VMs because 4 GB
+is reserved for the host and 12 GB remains for the VMs. Allocating 2.4
+GB to each VM satisfies the 2 GB minimum requirement. Dynamic allocation
+and memory ballooning can improve resource utilization when VM workloads
+differ.
