@@ -1,0 +1,178 @@
+QUESTION 1: FILESYSTEM SPACE MANAGEMENT
+
+PSEUDOCODE:
+BEGIN
+SET threshold = 80
+WHILE system IS RUNNING DO
+usage = GET_DISK_USAGE()
+IF usage > threshold THEN
+PRINT "Disk utilization exceeded 80%"
+log_files = IDENTIFY_LOG_FILES()
+SORT log_files BY size IN DESCENDING ORDER
+FOR EACH file IN log_files DO
+IF file IS ACTIVE THEN
+ROTATE file
+ELSE
+COMPRESS file
+ENDIF
+usage = GET_DISK_USAGE()
+IF usage <= threshold THEN
+BREAK
+ENDIF
+ENDFOR
+IF usage > threshold THEN
+FOR EACH file IN log_files DO
+IF file IS OLD AND file IS NOT ACTIVE THEN
+DELETE file
+ENDIF
+usage = GET_DISK_USAGE()
+IF usage <= threshold THEN
+BREAK
+ENDIF
+ENDFOR
+ENDIF
+IF usage > threshold THEN
+PRINT "Warning: Disk usage is still above 80%"
+ELSE
+PRINT "Disk space successfully recovered"
+ENDIF
+ELSE
+PRINT "Disk utilization is within safe limit"
+ENDIF
+WAIT FOR monitoring_interval
+ENDWHILE
+END
+
+
+QUESTION 2: PRIORITY-BASED CPU SCHEDULING
+
+PSEUDOCODE:
+BEGIN
+INPUT process_list
+IF process_list IS EMPTY THEN
+PRINT "No processes available"
+EXIT
+ENDIF
+FOR EACH process IN process_list DO
+SET process.remaining_time = process.burst_time
+ENDFOR
+SORT process_list BY priority IN DESCENDING ORDER
+WHILE process_list IS NOT EMPTY DO
+SELECT process WITH HIGHEST PRIORITY
+ALLOCATE CPU TIME QUANTUM TO process
+EXECUTE process FOR allocated CPU time
+DECREASE process.remaining_time
+IF process.remaining_time <= 0 THEN
+PRINT "Process completed"
+REMOVE process FROM process_list
+ELSE
+REDUCE process priority SLIGHTLY
+INCREASE WAITING PROCESSES priority USING AGING
+ADD process BACK TO process_list
+SORT process_list BY priority IN DESCENDING ORDER
+ENDIF
+ENDWHILE
+PRINT "All processes completed"
+END
+
+
+QUESTION 3: RAM RESOURCE ALLOCATION FOR VIRTUAL MACHINES
+
+System Configuration:
+Total RAM = 16 GB
+Host Reserved RAM = 4 GB
+Available RAM = 12 GB
+Minimum RAM required per VM = 2 GB
+
+PSEUDOCODE:
+BEGIN
+SET total_RAM = 16 GB
+SET host_reserved = 4 GB
+available_RAM = total_RAM - host_reserved
+INPUT number_of_VMs
+IF number_of_VMs <= 0 THEN
+PRINT "Invalid number of VMs"
+EXIT
+ENDIF
+SET min_RAM = 2 GB
+FOR i = 1 TO number_of_VMs DO
+IF available_RAM >= min_RAM THEN
+ALLOCATE min_RAM TO VM[i]
+available_RAM = available_RAM - min_RAM
+PRINT "Allocated 2 GB RAM to VM", i
+ELSE
+PRINT "Insufficient memory for VM", i
+PRINT "VM", i, "cannot be allocated minimum RAM"
+ENDIF
+ENDFOR
+PRINT "Remaining available RAM =", available_RAM
+IF available_RAM > 0 THEN
+PRINT "Unused RAM can be reserved for future VM requirements"
+ENDIF
+END
+
+
+QUESTION 4: HYPERVISOR SELECTION
+
+PSEUDOCODE:
+BEGIN
+INPUT performance_required
+INPUT budget
+INPUT hardware_access
+IF performance_required = HIGH AND hardware_access = TRUE THEN
+SELECT Type_1_Hypervisor
+PRINT "Type 1 Hypervisor selected"
+PRINT "Reason: High performance and direct hardware access"
+ELSE IF budget = LOW THEN
+SELECT Type_2_Hypervisor
+PRINT "Type 2 Hypervisor selected"
+PRINT "Reason: Lower cost and easier deployment"
+ELSE IF performance_required = MEDIUM AND hardware_access = TRUE THEN
+SELECT Type_1_Hypervisor
+PRINT "Type 1 Hypervisor selected"
+PRINT "Reason: Better performance and hardware access"
+ELSE
+SELECT Type_2_Hypervisor
+PRINT "Type 2 Hypervisor selected"
+PRINT "Reason: Suitable for general-purpose virtualization"
+ENDIF
+PRINT "Selected hypervisor =", selected_hypervisor
+END
+
+
+QUESTION 5: CPU AND MEMORY RESOURCE MANAGEMENT
+
+PSEUDOCODE:
+BEGIN
+INPUT application_list
+IF application_list IS EMPTY THEN
+PRINT "No applications available"
+EXIT
+ENDIF
+FOR EACH app IN application_list DO
+CREATE resource_group FOR app
+INPUT app.cpu_limit
+INPUT app.memory_limit
+IF app.cpu_limit <= 0 OR app.memory_limit <= 0 THEN
+PRINT "Invalid resource limits for", app
+CONTINUE
+ENDIF
+SET CPU limit FOR app.resource_group
+SET memory limit FOR app.resource_group
+ASSIGN processes OF app TO app.resource_group
+PRINT "Resource limits applied to", app
+ENDFOR
+WHILE system IS RUNNING DO
+FOR EACH app IN application_list DO
+cpu_usage = GET_CPU_USAGE(app)
+memory_usage = GET_MEMORY_USAGE(app)
+IF cpu_usage > app.cpu_limit THEN
+THROTTLE CPU USAGE OF app
+ENDIF
+IF memory_usage > app.memory_limit THEN
+LIMIT MEMORY USAGE OF app
+ENDIF
+ENDFOR
+WAIT FOR monitoring_interval
+ENDWHILE
+END
