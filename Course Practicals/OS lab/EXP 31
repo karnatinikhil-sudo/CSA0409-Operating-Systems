@@ -1,0 +1,65 @@
+31. FIFO Page Replacement
+#include <stdio.h>
+
+int main()
+{
+    int pages[50], frames[10];
+    int n, f;
+    int i, j, k = 0;
+    int faults = 0, hit;
+
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+
+    printf("Enter page reference string:\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &pages[i]);
+
+    printf("Enter number of frames: ");
+    scanf("%d", &f);
+
+    for (i = 0; i < f; i++)
+        frames[i] = -1;
+
+    for (i = 0; i < n; i++)
+    {
+        hit = 0;
+
+        for (j = 0; j < f; j++)
+        {
+            if (frames[j] == pages[i])
+            {
+                hit = 1;
+                break;
+            }
+        }
+
+        if (!hit)
+        {
+            frames[k] = pages[i];
+            k = (k + 1) % f;
+            faults++;
+        }
+
+        printf("%d : ", pages[i]);
+
+        for (j = 0; j < f; j++)
+        {
+            if (frames[j] == -1)
+                printf("- ");
+            else
+                printf("%d ", frames[j]);
+        }
+
+        if (hit)
+            printf("Hit");
+        else
+            printf("Page Fault");
+
+        printf("\n");
+    }
+
+    printf("\nTotal Page Faults = %d\n", faults);
+
+    return 0;
+}
