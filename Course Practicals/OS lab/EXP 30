@@ -1,0 +1,50 @@
+
+30. Thread Related Concepts
+This program demonstrates:
+
+pthread_create()
+pthread_join()
+pthread_equal()
+pthread_exit()
+#include <stdio.h>
+#include <pthread.h>
+
+void *thread_function(void *arg)
+{
+    pthread_t self = pthread_self();
+
+    printf("Thread is running.\n");
+
+    printf("pthread_equal(self, self) = %d\n",
+           pthread_equal(self, self));
+
+    printf("Thread is exiting.\n");
+
+    pthread_exit(NULL);
+}
+
+int main()
+{
+    pthread_t thread;
+
+    printf("Creating thread...\n");
+
+    if (pthread_create(&thread, NULL, thread_function, NULL) != 0)
+    {
+        printf("Thread creation failed.\n");
+        return 1;
+    }
+
+    printf("Thread created successfully.\n");
+
+    if (pthread_equal(thread, pthread_self()))
+        printf("Threads are equal.\n");
+    else
+        printf("Main thread and created thread are different.\n");
+
+    pthread_join(thread, NULL);
+
+    printf("Thread joined successfully.\n");
+
+    return 0;
+}
