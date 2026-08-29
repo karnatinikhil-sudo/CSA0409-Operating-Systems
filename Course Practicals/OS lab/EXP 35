@@ -1,0 +1,90 @@
+35. Indexed File Allocation
+#include <stdio.h>
+
+int main()
+{
+    int disk[100] = {0};
+    int indexBlock;
+    int n, i, block;
+
+    printf("Enter index block: ");
+    scanf("%d", &indexBlock);
+
+    if (indexBlock < 0 || indexBlock >= 100)
+    {
+        printf("Invalid index block.\n");
+        return 1;
+    }
+
+    if (disk[indexBlock])
+    {
+        printf("Index block already occupied.\n");
+        return 1;
+    }
+
+    disk[indexBlock] = 1;
+
+    printf("Enter number of file blocks: ");
+    scanf("%d", &n);
+
+    printf("Enter block numbers:\n");
+
+    for (i = 0; i < n; i++)
+    {
+        scanf("%d", &block);
+
+        if (block < 0 || block >= 100 || disk[block])
+        {
+            printf("Block %d is unavailable.\n", block);
+            return 1;
+        }
+
+        disk[block] = 1;
+    }
+
+    printf("\nIndex Block: %d\n", indexBlock);
+    printf("File blocks:\n");
+
+    /* In a real indexed allocation scheme these would be
+       stored in the index block. */
+    printf("Allocation completed successfully.\n");
+
+    return 0;
+}
+
+A more demonstrative version that stores the pointers:
+
+#include <stdio.h>
+
+int main()
+{
+    int indexBlock;
+    int blocks[20];
+    int n, i;
+
+    printf("Enter index block number: ");
+    scanf("%d", &indexBlock);
+
+    printf("Enter number of file blocks: ");
+    scanf("%d", &n);
+
+    if (n > 20)
+    {
+        printf("Maximum 20 blocks allowed.\n");
+        return 1;
+    }
+
+    printf("Enter file block numbers:\n");
+
+    for (i = 0; i < n; i++)
+        scanf("%d", &blocks[i]);
+
+    printf("\nIndex Block = %d\n", indexBlock);
+
+    printf("Index Block Contents:\n");
+
+    for (i = 0; i < n; i++)
+        printf("Entry %d -> Block %d\n", i + 1, blocks[i]);
+
+    return 0;
+}
