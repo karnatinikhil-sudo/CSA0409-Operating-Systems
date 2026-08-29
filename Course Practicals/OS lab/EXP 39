@@ -1,0 +1,85 @@
+39. C-SCAN Disk Scheduling
+#include <stdio.h>
+#include <stdlib.h>
+
+void sort(int a[], int n)
+{
+    int i, j, temp;
+
+    for (i = 0; i < n - 1; i++)
+    {
+        for (j = i + 1; j < n; j++)
+        {
+            if (a[i] > a[j])
+            {
+                temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    int request[50];
+    int n, head, diskSize;
+    int i, total = 0;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    printf("Enter request queue:\n");
+
+    for (i = 0; i < n; i++)
+        scanf("%d", &request[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size: ");
+    scanf("%d", &diskSize);
+
+    sort(request, n);
+
+    printf("\nSeek sequence: %d", head);
+
+    /* Move towards right */
+    for (i = 0; i < n; i++)
+    {
+        if (request[i] >= head)
+        {
+            total += abs(head - request[i]);
+            head = request[i];
+            printf(" -> %d", head);
+        }
+    }
+
+    /* Move to end */
+    if (head != diskSize - 1)
+    {
+        total += abs(head - (diskSize - 1));
+        head = diskSize - 1;
+        printf(" -> %d", head);
+    }
+
+    /* Jump to beginning */
+    total += diskSize - 1;
+    head = 0;
+    printf(" -> %d", head);
+
+    /* Service remaining requests */
+    for (i = 0; i < n; i++)
+    {
+        if (request[i] < head)
+        {
+            total += abs(head - request[i]);
+            head = request[i];
+            printf(" -> %d", head);
+        }
+    }
+
+    printf("\n\nTotal Head Movement = %d\n", total);
+
+    return 0;
+}
