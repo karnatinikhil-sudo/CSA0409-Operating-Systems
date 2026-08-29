@@ -1,0 +1,118 @@
+40. Linux File Access Permissions and Users
+Linux permissions are represented by three groups:
+
+Owner     Group     Others
+ rwx       rwx       rwx
+
+Where:
+
+r = read    = 4
+w = write   = 2
+x = execute = 1
+
+For example:
+
+-rwxr-xr--
+
+means:
+
+Owner  = rwx = 7
+Group  = r-x = 5
+Others = r-- = 4
+
+So the numeric permission is:
+
+754
+
+C program to demonstrate permissions
+#include <stdio.h>
+#include <sys/stat.h>
+
+void print_permissions(mode_t mode)
+{
+    printf("Owner  : ");
+
+    printf("%c", (mode & S_IRUSR) ? 'r' : '-');
+    printf("%c", (mode & S_IWUSR) ? 'w' : '-');
+    printf("%c", (mode & S_IXUSR) ? 'x' : '-');
+
+    printf("\nGroup  : ");
+
+    printf("%c", (mode & S_IRGRP) ? 'r' : '-');
+    printf("%c", (mode & S_IWGRP) ? 'w' : '-');
+    printf("%c", (mode & S_IXGRP) ? 'x' : '-');
+
+    printf("\nOthers : ");
+
+    printf("%c", (mode & S_IROTH) ? 'r' : '-');
+    printf("%c", (mode & S_IWOTH) ? 'w' : '-');
+    printf("%c", (mode & S_IXOTH) ? 'x' : '-');
+
+    printf("\n");
+}
+
+int main(int argc, char *argv[])
+{
+    struct stat fileStat;
+
+    if (argc != 2)
+    {
+        printf("Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
+
+    if (stat(argv[1], &fileStat) < 0)
+    {
+        perror("stat");
+        return 1;
+    }
+
+    printf("File: %s\n", argv[1]);
+
+    printf("\nFile Permissions:\n");
+    print_permissions(fileStat.st_mode);
+
+    printf("\nNumeric Permission: %o\n",
+           fileStat.st_mode & 0777);
+
+    return 0;
+}
+
+Compile and run:
+
+gcc permission.c -o permission
+./permission test.txt
+
+Typical output:
+
+File: test.txt
+
+File Permissions:
+Owner  : rw-
+Group  : r--
+Others : r--
+
+Numeric Permission: 644
+
+Linux user types
+Owner/User (u) — the user who owns the file.
+Group (g) — users belonging to the file's group.
+Others (o) — all other users.
+Root/Superuser — administrator with very high privileges.
+Common permission commands:
+
+chmod 755 file.txt
+chmod u+x file.txt
+chmod g-w file.txt
+chmod o+r file.txt
+ls -l file.txt
+
+For example:
+
+chmod 754 file.txt
+
+gives:
+
+Owner  = rwx
+Group  = r-x
+Others = r--
