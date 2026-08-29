@@ -1,0 +1,45 @@
+34. Contiguous File Allocation
+In contiguous allocation, the file occupies consecutive disk blocks.
+
+#include <stdio.h>
+
+int main()
+{
+    int disk[100] = {0};
+    int start, length;
+    int i;
+
+    printf("Enter starting block: ");
+    scanf("%d", &start);
+
+    printf("Enter number of blocks: ");
+    scanf("%d", &length);
+
+    if (start < 0 || start + length > 100)
+    {
+        printf("Invalid block range.\n");
+        return 1;
+    }
+
+    for (i = start; i < start + length; i++)
+    {
+        if (disk[i] == 1)
+        {
+            printf("Allocation failed. Block %d is already occupied.\n", i);
+            return 1;
+        }
+    }
+
+    for (i = start; i < start + length; i++)
+        disk[i] = 1;
+
+    printf("\nFile allocated successfully.\n");
+    printf("Allocated blocks: ");
+
+    for (i = start; i < start + length; i++)
+        printf("%d ", i);
+
+    printf("\n");
+
+    return 0;
+}
