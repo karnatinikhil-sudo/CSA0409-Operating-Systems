@@ -1,0 +1,57 @@
+36. Linked File Allocation
+#include <stdio.h>
+
+struct Block
+{
+    int blockNumber;
+    int next;
+};
+
+int main()
+{
+    struct Block disk[100];
+    int n, i;
+    int first, last;
+
+    for (i = 0; i < 100; i++)
+    {
+        disk[i].blockNumber = i;
+        disk[i].next = -1;
+    }
+
+    printf("Enter number of blocks in file: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > 100)
+    {
+        printf("Invalid number of blocks.\n");
+        return 1;
+    }
+
+    printf("Enter block numbers:\n");
+
+    for (i = 0; i < n; i++)
+        scanf("%d", &disk[i].blockNumber);
+
+    for (i = 0; i < n - 1; i++)
+        disk[i].next = disk[i + 1].blockNumber;
+
+    disk[n - 1].next = -1;
+
+    first = disk[0].blockNumber;
+    last = disk[n - 1].blockNumber;
+
+    printf("\nFirst Block = %d", first);
+    printf("\nLast Block = %d\n", last);
+
+    printf("\nLinked Allocation:\n");
+
+    for (i = 0; i < n; i++)
+    {
+        printf("Block %d -> %d\n",
+               disk[i].blockNumber,
+               disk[i].next);
+    }
+
+    return 0;
+}
